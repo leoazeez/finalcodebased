@@ -17,6 +17,7 @@ session_start();
 <link href="layout/styles/layout.css" rel="stylesheet" type="text/css" media="all">
 </head>
 <body id="top">
+
 <?php
 
 #connection to the database
@@ -25,7 +26,8 @@ $bd = mysqli_select_db($conn,"checker") or die("Error: Database Issue");
 
 
 $default_student_id = $_SESSION["student_id"];
-$default_assignment_id = $_SESSION["assignment_id"];
+$default_assignment_id = unserialize($_SESSION["assignment_id"]);
+
 $old_assignment = $default_assignment_id-1;
 //echo "old assignùent ====".$old_assignment;
 if (isset($_POST['upload'])){
@@ -69,7 +71,7 @@ if (isset($_POST['upload'])){
     $array = explode('.', $final_file);
     $extension = end($array);
       if($extension == "py"){
-        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
+         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -77,7 +79,7 @@ if (isset($_POST['upload'])){
         echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
       }
       else if($extension == "cpp"){
-        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
+         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -85,7 +87,7 @@ if (isset($_POST['upload'])){
         echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
       }
       else if($extension == "php"){
-        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
+         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -98,7 +100,58 @@ if (isset($_POST['upload'])){
       }
 
  }
+ 
 }
+
+//GitHub file uplaod 
+	 if(isset($_POST['username'])){
+		$username = $_POST['username'];
+		$token = $_POST['accessToken'];
+		$repository = $_POST['repository'];
+		$folder="upload/";
+		$URL="https://github.com/".$username."/".$repository."/archive/master.zip";
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,'https://github.com');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_USERPWD, "$username:$token");
+
+		curl_setopt($ch, CURLOPT_URL,$URL);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+		$zipfile=curl_exec ($ch);
+		curl_close ($ch);
+		$filename = rand(1000,100000)."-".$repository;
+		file_put_contents($folder.$filename.'.zip', $zipfile);
+		$zip = new ZipArchive(); 
+
+		$x = $zip->open('upload/'.$filename.'.zip'); 
+		if($x === true) {
+			for($i = 0; $i < $zip->numFiles; $i++) 
+			{   
+				$fileInZip = $zip->statIndex($i);
+				$fname = $fileInZip['name'];
+				$zip->renameIndex($i, $fname.'.txt');
+				
+			}
+			
+			$zip->extractTo("upload/");
+			$zip->close();
+			
+		} else {
+			die("There was a problem. Please try again!");
+		}
+		
+		$final_file = basename('upload/'.$filename.'.zip');
+		$request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
+		$result = mysqli_query($conn,$request_insert_file);
+		$last_submission_id = mysqli_insert_id($conn);
+		$_SESSION["submission_id"] = $last_submission_id;
+		echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
+	}
 ?>
 <div class="bgded" style="background-image:url('images/demo/backgrounds/01.webp');"> 
   <div class="wrapper overlay row0">
@@ -110,6 +163,7 @@ if (isset($_POST['upload'])){
   </div>
 </div>
 <?php 
+
 if($_SESSION["show_questions"])
 {
  

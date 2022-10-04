@@ -168,7 +168,7 @@ $bd = mysqli_select_db($conn,"checker") or die("Errreur: Database Issue");
 				$profile = array($id,$name,$email);
 				session_start();
 				$_SESSION['profile'] = serialize($profile);
-				header('Location: select_course.php');
+				header('Location: select_course_assignment.php');
 			}else{
 				header('Location: login.php');
 			}
