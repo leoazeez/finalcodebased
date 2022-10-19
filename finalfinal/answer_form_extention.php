@@ -25,7 +25,7 @@ error_reporting(0);
   <div class="wrapper overlay">
     <div id="pageintro2" class="hoc"> 
       <article>
-        <h3 class="heading">Code Submission System</h3>
+        <h3 class="heading">Welcome To Plagiarism Checker</h3>
       </article>
     </div>
   </div>
@@ -33,7 +33,7 @@ error_reporting(0);
 <?php
 #connection to the database
 $conn = mysqli_connect("localhost:3306","root","") or die("Error: Connection Issue");
-$bd = mysqli_select_db($conn,"checker") or die("Error: Database Issue");
+$bd = mysqli_select_db($conn,"plagiarism_tester") or die("Error: Database Issue");
 
 #getting the question whole description
 $question_id = $_GET['question_id'];

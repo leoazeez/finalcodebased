@@ -8,15 +8,6 @@ session_start();
 // ini_set('display_startup_errors', 1);
 // error_reporting(0);
 
-if (!isset($_SESSION['profile'])) {
-    header("Location: index.php");
-} else {
-    $profile = unserialize($_SESSION['profile']);
-	$id = $profile[0];
-	$name = $profile[01];
-	$email = $profile[2];
-}
-
 ini_set('upload_max_filesize', '50M');
 ini_set('post_max_size', '50M');
 ini_set('max_input_time', 300);
@@ -25,7 +16,7 @@ ini_set('max_execution_time', 300);
 <!DOCTYPE html>
 <html lang="">
 <head>
-<title>Code Submission System</title>
+<title>Code based Submission System</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="layout/styles/layout.css" rel="stylesheet" type="text/css" media="all">
@@ -85,15 +76,8 @@ if(isset($_GET['continue_to_upload'])){
 
 
 }
-$default_student_id = $id;
-if (!empty($_GET["assignment"])&&!empty($_GET["course"])) {
-	$course = $_GET["course"];
-	$assignment = $_GET["assignment"];
-}else{
-	header("Location:select_Course_Assignment");
-}
-
-$_SESSION['assignment_id'] = serialize($assignment);
+$default_student_id = $_SESSION["student_id"];
+$default_assignment_id = $_SESSION["assignment_id"];
 ?>
 
 
@@ -110,15 +94,12 @@ $_SESSION['assignment_id'] = serialize($assignment);
   <div class="wrapper overlay">
     <div id="pageintro2" class="hoc"> 
       <article>
-        <h3 class="heading">Welcome To Plagiarism Checker</h3>
+        <h3 class="heading">Welcome To Code based Submission System</h3>
       </article>
     </div>
   </div>
 
 <?php
-echo "Welcome ".$name."<br>";
-echo "Submission assignment ".$assignment." for course ".$course."<br>";
-
 
 ?>
   <div class="wrapper coloured">
@@ -136,16 +117,6 @@ echo "Submission assignment ".$assignment." for course ".$course."<br>";
           </p>
           <br></br><br></br><br></br> -->
           <p><input type="submit" class="white_transparent" name="upload" value="Continue"></input></p>
-
-        </form>
-		<form method="post" action="questions.php" >
-          <p>Zip repository upload</p>
-          <h6 class="heading"><span>&ldquo;</span>Fill in github information and continue<span>&bdquo;</span></h6>
-			  <input type="text" name="username" id="username" placeholder ="username"  class="btn file"/></label><br>
-			  <input type="text" name="accessToken" id="accessToken" placeholder ="Access Token" class="btn file"/></label><br>
-			  <input type="text" name="repository" id="repository" placeholder ="Repository" class="btn file"/></label>
-          <br></br>
-          <p><input type="submit" class="white_transparent" name="gitupload" value="Continue"></input></p>
 
         </form>
     </article>

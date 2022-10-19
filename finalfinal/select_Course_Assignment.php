@@ -88,7 +88,7 @@ while($rows){
 				$get = mysqli_query($conn,$sql_get);
 				$rows = mysqli_fetch_row($get);
 				$holders = array();
-				$count = 0;
+				$count = mysqli_num_rows($get);
 				$assignmentId = array();
 				while($rows){
 					$holders[$count] = array($rows[0],$rows[1],$rows[2]); 
@@ -112,6 +112,9 @@ while($rows){
 		?>
 	  
 	</table> 
+	<form action="inputinfo.php" method="get">
+         <button class="btn" style="margin-left:10%;" type="submit" name="Student">Upload Assignment</button>
+        </form>
 			
 		  
     

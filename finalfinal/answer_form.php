@@ -25,7 +25,7 @@ error_reporting(0);
   <div class="wrapper overlay">
     <div id="pageintro2" class="hoc"> 
       <article>
-        <h3 class="heading">Code Submission System</h3>
+        <h3 class="heading">Welcome To Plagiarism Checker</h3>
       </article>
     </div>
   </div>

@@ -1,12 +1,21 @@
 <?php
 session_start();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+//require 'vendor/autoload.php';
+require 'smtp/src/Exception.php';
+require 'smtp/src/PHPMailer.php';
+require 'smtp/src/SMTP.php';
 // ini_set('upload_max_filesize', '10M');
 // ini_set('post_max_size', '10M');
 // ini_set('max_input_time', 300);
 // ini_set('max_execution_time', 300);
- ini_set('display_errors', 1);
- ini_set('display_startup_errors', 1);
- error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(0);
+
 ?>
 <!DOCTYPE html>
 <html lang="">
@@ -17,7 +26,6 @@ session_start();
 <link href="layout/styles/layout.css" rel="stylesheet" type="text/css" media="all">
 </head>
 <body id="top">
-
 <?php
 
 #connection to the database
@@ -26,10 +34,8 @@ $bd = mysqli_select_db($conn,"checker") or die("Error: Database Issue");
 
 
 $default_student_id = $_SESSION["student_id"];
-$default_assignment_id = unserialize($_SESSION["assignment_id"]);
-
+$default_assignment_id = $_SESSION["assignment_id"];
 $old_assignment = $default_assignment_id-1;
-//echo "old assignùent ====".$old_assignment;
 if (isset($_POST['upload'])){
   #removing the generated question of the previous file if they exist
   // $remove_generated_req = "delete from question where assignment=".$old_assignment;
@@ -71,7 +77,7 @@ if (isset($_POST['upload'])){
     $array = explode('.', $final_file);
     $extension = end($array);
       if($extension == "py"){
-         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
+        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -79,7 +85,7 @@ if (isset($_POST['upload'])){
         echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
       }
       else if($extension == "cpp"){
-         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
+        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -87,7 +93,7 @@ if (isset($_POST['upload'])){
         echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
       }
       else if($extension == "php"){
-         $request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
+        $request_insert_file = "insert into submission(student,assignment,file) values(".$default_student_id.",".$default_assignment_id.",'".$final_file."')";
         $result = mysqli_query($conn,$request_insert_file);
         $last_submission_id = mysqli_insert_id($conn);
         $_SESSION["submission_id"] = $last_submission_id;
@@ -100,58 +106,12 @@ if (isset($_POST['upload'])){
       }
 
  }
- 
+ else {
+  echo "<script type=\"text/javascript\">alert('Error : Upload doesnt work')</script>";
+  //header('Location: file_upload.php'); 
 }
 
-//GitHub file uplaod 
-	 if(isset($_POST['username'])){
-		$username = $_POST['username'];
-		$token = $_POST['accessToken'];
-		$repository = $_POST['repository'];
-		$folder="upload/";
-		$URL="https://github.com/".$username."/".$repository."/archive/master.zip";
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL,'https://github.com');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_USERPWD, "$username:$token");
-
-		curl_setopt($ch, CURLOPT_URL,$URL);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-		$zipfile=curl_exec ($ch);
-		curl_close ($ch);
-		$filename = rand(1000,100000)."-".$repository;
-		file_put_contents($folder.$filename.'.zip', $zipfile);
-		$zip = new ZipArchive(); 
-
-		$x = $zip->open('upload/'.$filename.'.zip'); 
-		if($x === true) {
-			for($i = 0; $i < $zip->numFiles; $i++) 
-			{   
-				$fileInZip = $zip->statIndex($i);
-				$fname = $fileInZip['name'];
-				$zip->renameIndex($i, $fname.'.txt');
-				
-			}
-			
-			$zip->extractTo("upload/");
-			$zip->close();
-			
-		} else {
-			die("There was a problem. Please try again!");
-		}
-		
-		$final_file = basename('upload/'.$filename.'.zip');
-		$request_insert_file = "insert into submission(student,assignment,file) values('$default_student_id','$default_assignment_id','$final_file')";
-		$result = mysqli_query($conn,$request_insert_file);
-		$last_submission_id = mysqli_insert_id($conn);
-		$_SESSION["submission_id"] = $last_submission_id;
-		echo "<script type=\"text/javascript\">alert('Success : File Submited Successfully')</script>";
-	}
+}
 ?>
 <div class="bgded" style="background-image:url('images/demo/backgrounds/01.webp');"> 
   <div class="wrapper overlay row0">
@@ -163,7 +123,6 @@ if (isset($_POST['upload'])){
   </div>
 </div>
 <?php 
-
 if($_SESSION["show_questions"])
 {
  
@@ -580,7 +539,7 @@ if($_SESSION["show_questions"])
 <div class="wrapper overlay">
     <div id="pageintro2" class="hoc"> 
       <article>
-        <h3 class="heading">Welcome To Plagiarism Checker</h3>
+        <h3 class="heading">Welcome To Code Bases Submission System</h3>
         <br></br>
         <span class="center_title">Answer the questions to complete the test</span>
         <br></br><br>
@@ -620,7 +579,7 @@ if($_SESSION["show_questions"])
         //generating the link
           // $link = "student=".$_SESSION["student_id"]."&assignment=".$_SESSION["assignment_id"]."&questions=".$questions;
           $link = "student=".$_SESSION["student_id"]."&assignment=".$_SESSION["assignment_id"]."&file=".$_SESSION["final_file"];
-
+          $mail_link = "http://localhost/plagiarism_tester/questions_list.php?".$link;
           echo "<article>    
                   <h6 class='heading'>The Process May Take Time</h6>
                   <p>The link to answer the questions will be sent via your email, in case you want to answer the questions now click the <b><a href='questions_list.php?$link'>link</a></b>.</p>
@@ -637,14 +596,44 @@ if($_SESSION["show_questions"])
   
           //sending the mail to the student
           $dest = $mail;
-          $subject = "Plagiarism Tester";
-          $body = "The Question for the plagiarism Test are Ready, please click the link below to answer them : ".$link;
-          $headers = "From: khadija.anejjar.ka@gmail.com";
-          // $m = mail($dest, $subject, $body, $headers);
-          // if ($m) 
-          //   echo "mail sent".$m;
-          // else
-          //   echo "mail not sent :: ".$m;
+          $mail = new PHPMailer(true);
+          try {
+              //Server settings
+              //$mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+              $mail->isSMTP();                                            //Send using SMTP
+              $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+              $mail->SMTPAuth   = true;    
+
+              //Enable SMTP authentication
+              $mail->Username   = "leoazeez47@gmail.com";                     //SMTP username
+              $mail->Password   = "ouhkazjbhimgkbmu";                               //SMTP password
+              $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+              $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+              $mail->SMTPOptions = array(
+              'ssl' => array(
+              'verify_peer' => false,
+              'verify_peer_name' => false,
+              'allow_self_signed' => true
+              )
+              );
+                //Recipients
+                $mail->setFrom('leoazeez47@gmail.com', 'Submission System');
+                $mail->addAddress($dest, 'Student');    
+                      
+                $mail->addReplyTo('leoazeez47@gmail.com', 'Submission System');
+            
+
+                //Content
+                $mail->isHTML(true);                                  //Set email format to HTML
+                $mail->Subject = 'Submission System Quiz';
+                $mail->Body    = 'The Questions for the Submission Test are Ready, please click the link below to answer them <b>'.$mail_link.'</b>';
+                //echo "link=====>".$mail_link;
+                $mail->send();
+              //echo 'Message has been sent';
+          } catch (Exception $e) {
+                //echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+          }
       }
 
         

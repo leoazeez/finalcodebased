@@ -151,7 +151,7 @@ $bd = mysqli_select_db($conn,"checker") or die("Errreur: Database Issue");
 	</div>
 	
 	<?php
-		if ($_POST["login"]) {
+		if (!empty($_POST["login"])) {
 			$email = $_POST["email"];
 			$password = $_POST["password"];
 			$conn = mysqli_connect("localhost:3306","root","") or die("Erreur: Connection Issue");
@@ -168,16 +168,13 @@ $bd = mysqli_select_db($conn,"checker") or die("Errreur: Database Issue");
 				$profile = array($id,$name,$email);
 				session_start();
 				$_SESSION['profile'] = serialize($profile);
-				mysqli_close($conn);
 				header('Location: select_course_assignment.php');
-				
 			}else{
 				header('Location: login.php');
 			}
-			
 		}
 		
-		if ($_POST["register"]) {
+		if (!empty($_POST["register"])) {
 			header('Location: create_account.php');
 		}
 	?>
